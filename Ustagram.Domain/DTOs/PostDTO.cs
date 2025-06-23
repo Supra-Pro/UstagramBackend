@@ -1,27 +1,23 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace Ustagram.Domain.DTOs;
 
 public class PostDTO
 {
-    [Required(ErrorMessage = "PostType is required")]
-    [StringLength(50, ErrorMessage = "PostType cannot exceed 50 characters")]
+    [Required]
     public string PostType { get; set; }
 
-    [Required(ErrorMessage = "Text is required")]
-    [StringLength(100, ErrorMessage = "Text cannot exceed 100 characters")]
+    [Required]
     public string Text { get; set; }
 
-    [Required(ErrorMessage = "Description is required")]
-    [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
+    [Required]
     public string Description { get; set; }
 
-    [Range(0, int.MaxValue, ErrorMessage = "Price cannot be negative")]
+    [Required]
     public int Price { get; set; }
 
-    // public IFormFile? Attachment { get; set; }
 
-    [StringLength(255, ErrorMessage = "PhotoPath cannot exceed 255 characters")]
-    public string PhotoPath { get; set; } = string.Empty; 
+    public IFormFile Photo { get; set; }
 }

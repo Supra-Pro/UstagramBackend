@@ -1,12 +1,13 @@
+using BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Ustagram.Application.Abstractions;
+using Ustagram.Application.Services;
 using Ustagram.Domain.DTOs;
 using Ustagram.Domain.Model;
-using BCrypt.Net;
-using System;
-using System.Threading.Tasks;
-using Ustagram.Application.Services;
 
 namespace Ustagram.API.Controllers
 {
@@ -61,7 +62,7 @@ namespace Ustagram.API.Controllers
                     Username = request.Username,
                     Phone = request.Phone,
                     Location = request.Location,
-                    PhotoPath = request.PhotoPath,
+                    Photo = request.Photo,
                     Dob = request.Dob,
                     Status = request.Status,
                     MasterType = request.MasterType,

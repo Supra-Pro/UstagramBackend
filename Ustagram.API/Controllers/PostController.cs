@@ -21,18 +21,18 @@ public class PostController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<string>> CreatePost([FromForm] PostDTO postDto)
     {
-        Console.WriteLine($"Received PostDTO: PostType={postDto.PostType}, Text={postDto.Text}, Description={postDto.Description}, Price={postDto.Price}, PhotoPath={postDto.PhotoPath ?? "null"}");
+        //Console.WriteLine($"Received PostDTO: PostType={postDto.PostType}, Text={postDto.Text}, Description={postDto.Description}, Price={postDto.Price}};
 
-        if (!ModelState.IsValid)
-        {
-            var errors = ModelState
-                .Where(x => x.Value.Errors.Count > 0)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                );
-            return BadRequest(new { title = "Validation failed", errors });
-        }
+        //if (!ModelState.IsValid)
+        //{
+        //    var errors = ModelState
+        //        .Where(x => x.Value.Errors.Count > 0)
+        //        .ToDictionary(
+        //            kvp => kvp.Key,
+        //            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+        //        );
+        //    return BadRequest(new { title = "Validation failed", errors });
+        //}
 
         // if (postDto.Attachment != null)
         // {

@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Globalization;
 using Ustagram.Application.Abstractions;
 using Ustagram.Domain.DTOs;
 using Ustagram.Domain.Model;
 using Ustagram.Infrastructure.Persistance;
-using System.Globalization;
-using Microsoft.Extensions.Logging;
 
 namespace Ustagram.Application.Services;
 
@@ -13,12 +15,14 @@ public class PostService : IPostService
     private readonly ApplicationDbContext _db;
     private readonly IFileService _fileService;
     private readonly ILogger<PostService> _logger;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public PostService(ApplicationDbContext db, IFileService fileService, ILogger<PostService> logger)
+    public PostService(ApplicationDbContext db, IFileService fileService, ILogger<PostService> logger, IWebHostEnvironment webHostEnvironment)
     {
         _db = db;
         _fileService = fileService;
         _logger = logger;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public async Task<string> CreatePost(PostDTO postDto, Guid userId)
@@ -43,6 +47,32 @@ public class PostService : IPostService
         //     photoPath = postDto.PhotoPath;
         // }
 
+
+        var pictureFile = postDto.Photo;
+        string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "PostPhotos");
+        string fileName = "";
+
+        try
+        {
+            if (!Directory.Exists(filePath))
+            {
+                Directory.CreateDirectory(filePath);
+                Debug.WriteLine("Directory created successfully.");
+            }
+
+            fileName = Guid.NewGuid().ToString() + Path.GetExtension(pictureFile.FileName);
+            filePath = Path.Combine(_webHostEnvironment.WebRootPath, "PostPhotos", fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await pictureFile.CopyToAsync(stream);
+            }
+        }
+        catch (Exception ex)
+        {
+            return "Error in saving image!";
+        }
+
+
         var newPost = new Post
         {
             UserId = userId,
@@ -50,7 +80,7 @@ public class PostService : IPostService
             Text = postDto.Text,
             Description = postDto.Description,
             Price = postDto.Price,
-            PhotoPath = postDto.PhotoPath,
+            PhotoPath = "/PostPhotos/" + fileName,
             Date = Convert.ToString(DateTime.UtcNow, CultureInfo.InvariantCulture),
             Likes = 0,
             Dislikes = 0
@@ -102,6 +132,36 @@ public class PostService : IPostService
 
         if (post.UserId != userId)
             return "Unauthorized: You cannot edit this post";
+
+
+        if (postDto.Photo != null)
+        {
+            var pictureFile = postDto.Photo;
+            string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "PostPhotos");
+            string fileName = "";
+
+            try
+            {
+                if (!Directory.Exists(filePath))
+                {
+                    Directory.CreateDirectory(filePath);
+                    Debug.WriteLine("Directory created successfully.");
+                }
+
+                fileName = Guid.NewGuid().ToString() + Path.GetExtension(pictureFile.FileName);
+                filePath = Path.Combine(_webHostEnvironment.WebRootPath, "PostPhotos", fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await pictureFile.CopyToAsync(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error in saving image!";
+            }
+
+            post.PhotoPath = "/PostPhotos/" + fileName;
+        }
 
         post.PostType = postDto.PostType;
         post.Text = postDto.Text;

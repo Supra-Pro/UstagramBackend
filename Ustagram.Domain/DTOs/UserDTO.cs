@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace Ustagram.Domain.DTOs;
+
+using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 public class UserDTO
 {
@@ -23,8 +27,7 @@ public class UserDTO
     [StringLength(100)]
     public string Location { get; set; }
 
-    [StringLength(255)]
-    public string PhotoPath { get; set; }
+    public IFormFile? Photo { get; set; }
 
     [StringLength(10)]
     public string Dob { get; set; }
@@ -47,6 +50,7 @@ public class UserDTO
     [Url]
     public string InstagramUrl { get; set; }
 }
+
 
 
 public class UserSummaryDTO

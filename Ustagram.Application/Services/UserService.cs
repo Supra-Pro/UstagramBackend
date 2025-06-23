@@ -1,19 +1,23 @@
+using BCrypt.Net;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using Ustagram.Application.Abstractions;
 using Ustagram.Domain.DTOs;
 using Ustagram.Domain.Model;
 using Ustagram.Infrastructure.Persistance;
-using BCrypt.Net;
 
 namespace Ustagram.Application.Services;
 
 public class UserService : IUserService
 {
     private readonly ApplicationDbContext _db;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public UserService(ApplicationDbContext db)
+    public UserService(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment)
     {
         _db = db;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public async Task<string> CreateUser(UserDTO userDto)
@@ -21,6 +25,31 @@ public class UserService : IUserService
         if (userDto.Password.Length < 8)
             throw new ArgumentException("Password must be at least 8 characters long.");
 
+
+
+        var pictureFile = userDto.Photo;
+        string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "UserPhotos");
+        string fileName = "";
+
+        try
+        {
+            if (!Directory.Exists(filePath))
+            {
+                Directory.CreateDirectory(filePath);
+                Debug.WriteLine("Directory created successfully.");
+            }
+
+            fileName = Guid.NewGuid().ToString() + Path.GetExtension(pictureFile.FileName);
+            filePath = Path.Combine(_webHostEnvironment.WebRootPath, "UserPhotos", fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await pictureFile.CopyToAsync(stream);
+            }
+        }
+        catch (Exception ex)
+        {
+            return "Error in saving image!";
+        }
         var newUser = new User
         {
             FullName = userDto.FullName,
@@ -28,7 +57,7 @@ public class UserService : IUserService
             Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password, workFactor: 11),
             Phone = userDto.Phone,
             Location = userDto.Location ?? "",
-            PhotoPath = userDto.PhotoPath ?? "assets/default-profile.png",
+            PhotoPath = "/UserPhotos/" + fileName,
             Dob = userDto.Dob ?? "",
             Status = userDto.Status ?? "",
             MasterType = userDto.MasterType ?? "",
@@ -60,6 +89,38 @@ public class UserService : IUserService
         if (user == null)
             throw new Exception("User not found");
 
+
+        if (userDto.Photo != null)
+        {
+
+            var pictureFile = userDto.Photo;
+            string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "UserPhotos");
+            string fileName = "";
+
+            try
+            {
+                if (!Directory.Exists(filePath))
+                {
+                    Directory.CreateDirectory(filePath);
+                    Debug.WriteLine("Directory created successfully.");
+                }
+
+                fileName = Guid.NewGuid().ToString() + Path.GetExtension(pictureFile.FileName);
+                filePath = Path.Combine(_webHostEnvironment.WebRootPath, "UserPhotos", fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await pictureFile.CopyToAsync(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error in saving image!";
+            }
+
+            user.PhotoPath = "/UserPhotos/" + fileName;
+
+        }
+
         user.FullName = userDto.FullName;
         user.Username = userDto.Username;
         user.Phone = userDto.Phone;
@@ -75,11 +136,6 @@ public class UserService : IUserService
         if (!string.IsNullOrEmpty(userDto.Password) && userDto.Password != "UNCHANGED")
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
-        }
-
-        if (userDto.PhotoPath != null)
-        {
-            user.PhotoPath = userDto.PhotoPath;
         }
 
         await _db.SaveChangesAsync();
