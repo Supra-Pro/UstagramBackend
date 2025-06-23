@@ -20,3 +20,16 @@ public class User
     public List<Post> Posts { get; set; } = new List<Post>();
     public List<Favourites> Favourites { get; set; } = new List<Favourites>();
 }
+
+
+public class ElasticUser
+{
+
+    public ElasticUser(User user)
+    {
+        Id = user.Id;
+        Username = user.Username;
+    }
+    public Guid Id { get; set; }
+    public string Username { get; set; }
+}
