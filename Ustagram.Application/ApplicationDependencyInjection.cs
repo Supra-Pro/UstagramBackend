@@ -10,6 +10,8 @@ public static class ApplicationDependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection service)
     {
         service.AddScoped<IUserService, UserService>();
+        //service.AddScoped<IElasticSerachService, ElasticSearchService>();
+        service.AddScoped<IUserFollowingService, UserFollowingService>();
         service.AddScoped<IPostService, PostService>();
         service.AddScoped<ICommentService, CommentService>();
         service.AddScoped<IFavouritesService, FavouritesService>();

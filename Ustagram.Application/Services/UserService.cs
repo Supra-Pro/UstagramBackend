@@ -13,11 +13,13 @@ public class UserService : IUserService
 {
     private readonly ApplicationDbContext _db;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    //private readonly IElasticSerachService _elasticSerachService;
 
     public UserService(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment)
     {
         _db = db;
         _webHostEnvironment = webHostEnvironment;
+        //s _elasticSerachService = elasticSerachService;
     }
 
     public async Task<string> CreateUser(UserDTO userDto)
@@ -69,6 +71,8 @@ public class UserService : IUserService
 
         await _db.Users.AddAsync(newUser);
         await _db.SaveChangesAsync();
+
+        //await _elasticSerachService.AddElasticUserAsync(newUser);
 
         return "User Created!";
     }
@@ -139,6 +143,7 @@ public class UserService : IUserService
         }
 
         await _db.SaveChangesAsync();
+
         return "User updated successfully";
     }
 
@@ -149,6 +154,8 @@ public class UserService : IUserService
 
         _db.Users.Remove(user);
         await _db.SaveChangesAsync();
+
+        //await _elasticSerachService.DeleteElasticUserAsync(user);
         return "User Deleted!";
     }
 
