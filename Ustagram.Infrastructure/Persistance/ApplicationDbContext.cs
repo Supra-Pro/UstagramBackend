@@ -15,6 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Post> Posts { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Favourites> Favourites { get; set; }
+    public DbSet<UserFollow> UsersFollows { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -54,5 +55,21 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(f => f.PostId)
             .OnDelete(DeleteBehavior.Cascade);
+
+
+        modelBuilder.Entity<UserFollow>()
+        .HasKey(uf => new { uf.FollowerId, uf.FollowingId });
+
+        modelBuilder.Entity<UserFollow>()
+            .HasOne(uf => uf.Follower)
+            .WithMany(u => u.Following)
+            .HasForeignKey(uf => uf.FollowerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UserFollow>()
+            .HasOne(uf => uf.Following)
+            .WithMany(u => u.Followers)
+            .HasForeignKey(uf => uf.FollowingId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

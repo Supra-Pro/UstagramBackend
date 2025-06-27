@@ -7,14 +7,10 @@ namespace Ustagram.Application.Services
 {
     public class ElasticSearchService : IElasticSerachService
     {
-        private readonly ApplicationDbContext _context;
         private readonly IElasticClient _elasticClient;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ElasticSearchService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IElasticClient elasticClient)
+        public ElasticSearchService(IElasticClient elasticClient)
         {
-            _context = context;
-            _httpContextAccessor = httpContextAccessor;
             _elasticClient = CreateElasticClient();
         }
 

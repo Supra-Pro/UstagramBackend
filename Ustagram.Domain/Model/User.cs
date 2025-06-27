@@ -17,6 +17,8 @@ public class User
     public string TelegramUrl { get; set; }
     public string InstagramUrl { get; set; }
 
+    public ICollection<UserFollow> Following {  get; set; }
+    public ICollection<UserFollow> Followers { get; set; }
     public List<Post> Posts { get; set; } = new List<Post>();
     public List<Favourites> Favourites { get; set; } = new List<Favourites>();
 }
